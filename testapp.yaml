@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginxconfig
+  namespace: default
+data:
+  default.conf: |
+    server {
+          listen 80;
+          root /var/www;
+          index index.html;
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testapp             
+  namespace: default      
+data:
+  index.html: |-
+    Deployed successfully
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: testapp
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testapp
+    spec:
+      containers:
+      - image: docker.io/nginx
+        name: testapp
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - name: nginxconfig
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+          readOnly: true
+        - name: testapp
+          mountPath: /var/www/index.html
+          readOnly: true
+#        args:
+#        - -f
+#        - /etc/nginx/conf.d/default.conf
+      volumes:
+      - name: nginxconfig
+        configMap:
+          name: nginxconfig
+          items:
+          - key: default.conf
+            path: default.conf
+      - name: testapp
+        configMap:
+          name: testapp
+          items:
+          - key: index.html
+            path: index.html
+#      nodeSelector:
+#        kube-aws.coreos.com/role: worker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testapp
+  namespace: default
+  labels:
+    app: testapp
+spec:
+  type: LoadBalancer
+  selector:
+    app: testapp
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
