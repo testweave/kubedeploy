@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  default.conf: |
+    server {
+          listen 80;
+          root /var/www;
+          index index.html;
+    }
+metadata:
+  name: nginxconfig
+  namespace: default
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  index.html: |-
+    Deployed successfully
+metadata:
+  name: testapp
+  namespace: default
+
