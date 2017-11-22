@@ -1,25 +1,25 @@
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nginxconfig
-  namespace: default
-data:
-  default.conf: |
-    server {
-          listen 80;
-          root /var/www;
-          index index.html;
-    }
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: testapp             
-  namespace: default      
-data:
-  index.html: |-
-    Deployed successfully
+#---
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: nginxconfig
+#  namespace: default
+#data:
+#  default.conf: |
+#    server {
+#          listen 80;
+#          root /var/www;
+#          index index.html;
+#    }
+#---
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: testapp             
+#  namespace: default      
+#data:
+#  index.html: |-
+#    Deployed successfully
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -40,32 +40,27 @@ spec:
         - name: http
           containerPort: 80
           protocol: TCP
-        volumeMounts:
-        - name: nginxconfig
-          mountPath: /etc/nginx/conf.d/default.conf
-          subPath: default.conf
-          readOnly: true
-        - name: testapp
-          mountPath: /var/www/index.html
-          readOnly: true
-#        args:
-#        - -f
-#        - /etc/nginx/conf.d/default.conf
-      volumes:
-      - name: nginxconfig
-        configMap:
-          name: nginxconfig
-          items:
-          - key: default.conf
-            path: default.conf
-      - name: testapp
-        configMap:
-          name: testapp
-          items:
-          - key: index.html
-            path: index.html
-#      nodeSelector:
-#        kube-aws.coreos.com/role: worker
+#        volumeMounts:
+#        - name: nginxconfig
+#          mountPath: /etc/nginx/conf.d/default.conf
+#          subPath: default.conf
+#          readOnly: true
+#        - name: testapp
+#          mountPath: /var/www/index.html
+#          readOnly: true
+#      volumes:
+#      - name: nginxconfig
+#        configMap:
+#          name: nginxconfig
+#          items:
+#          - key: default.conf
+#            path: default.conf
+#      - name: testapp
+#        configMap:
+#          name: testapp
+#          items:
+#          - key: index.html
+#            path: index.html
 ---
 apiVersion: v1
 kind: Service
